@@ -1,87 +1,101 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yerkiral <yerkiral@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/02/02 12:11:01 by yerkiral          #+#    #+#             */
+/*   Updated: 2023/02/02 12:11:02 by yerkiral         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub.h"
 
-int     map_fill_name(char *file, char map_file[96])
+int	map_fill_name(char *file, char map_file[96])
 {
-    int i;
-    int file_name_size;
+	int	i;
+	int	file_name_size;
 
-    i = 0;
-    file_name_size = ft_strlen(file);
-    while (i < 96)
-    {
-        if (i < file_name_size)
-            map_file[i] = file[i];
-        else
-            map_file[i] = '\0';
-        i++;
-    }
-    return (0);
+	i = 0;
+	file_name_size = ft_strlen(file);
+	while (i < 96)
+	{
+		if (i < file_name_size)
+			map_file[i] = file[i];
+		else
+			map_file[i] = '\0';
+		i++;
+	}
+	return (0);
 }
 
-int     map_floor_color(t_map *map, char *buffer, int *index)
+//get floor color.
+int	map_floor_color(t_map *map, char *buffer)
 {
-    int i;
-    int r;
-    int g;
-    int b;
+	int	i;
+	int	j;
+	int	rgb_color[3];
 
-    i = 0;
-    if (buffer[i] == 'F')
-    {
-        while (!(buffer[i] >= '0' && buffer[i] <= '9'))
-            i++;
-        r = ft_atoi(&buffer[i]);
-        while (buffer[i] != ',')
-            i++;
-        i++;
-        g = ft_atoi(&buffer[i]);
-        while (buffer[i] != ',')
-            i++;
-        i++;
-        b = ft_atoi(&buffer[i]);
-        map->f_color = rgb(0, r, g, b);
-        while (buffer[i] != '\n')
-            i++;
-        i++;
-    }
-    else
-        return (CUBERR);
-    *index = i + *index;
-    return (0);
+	i = 0;
+	j = 0;
+	while (buffer[i])
+	{
+		rgb_color[j++] = ft_atoi(&buffer[i]);
+		while (buffer[i] != ',' && buffer[i])
+			i++;
+		if (!buffer[i])
+			break ;
+		i++;
+	}
+	map->f_color = rgb(0, rgb_color[0], rgb_color[1], rgb_color[2]);
+	return (0);
 }
 
-int     map_ceiling_color(t_map *map, char *buffer)
+//get ceiling color.
+int	map_ceiling_color(t_map *map, char *buffer)
 {
-    int i;
-    int r;
-    int g;
-    int b;
+	int	i;
+	int	j;
+	int	rgb_color[3];
 
-    i = 0;
-    if (buffer[i] == 'C')
-    {
-        while (!(buffer[i] >= '0' && buffer[i] <= '9'))
-            i++;
-        r = ft_atoi(&buffer[i]);
-        while (buffer[i] != ',')
-            i++;
-        i++;
-        g = ft_atoi(&buffer[i]);
-        while (buffer[i] != ',')
-            i++;
-        i++;
-        b = ft_atoi(&buffer[i]);
-        map->c_color = rgb(0, r, g, b);
-        while (buffer[i] != '\n')
-            i++;
-        i++;
-    }
-    else
-        return (CUBERR);
-    return (0);
+	i = 0;
+	j = 0;
+	while (buffer[i])
+	{
+		rgb_color[j++] = ft_atoi(&buffer[i]);
+		while (buffer[i] != ',' && buffer[i])
+			i++;
+		if (!buffer[i])
+			break ;
+		i++;
+	}
+	map->c_color = rgb(0, rgb_color[0], rgb_color[1], rgb_color[2]);
+	return (0);
 }
 
-void    map_display_structure(t_map *map)
+int	buffer_check_for_multiple_nwse(char **buffer)
 {
-    ft_println(map->map_file);
+	int	i;
+	int	a;
+	int	j;
+
+	i = -1;
+	a = 0;
+	while (buffer[++i])
+	{
+		j = -1;
+		while (buffer[i][++j])
+		{
+			if (buffer[i][j] == 'N' || buffer[i][j] == 'S'
+				|| buffer[i][j] == 'W' || buffer[i][j] == 'E')
+				a++;
+			else if (!(buffer[i][j] == ' ' || buffer[i][j] == '1'
+				|| buffer[i][j] == '0'))
+				return (CUBERR);
+		}
+	}
+	if (a != 1)
+		return (CUBERR);
+	return (0);
 }
